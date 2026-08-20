@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+
+import '../models/category.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+
+class CategoryChip extends StatelessWidget {
+  const CategoryChip({
+    super.key,
+    required this.category,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final TxCategory category;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Material(
+      color: selected ? AppColors.primary : AppColors.mutedSurface,
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm + 2,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                category.icon,
+                size: 18,
+                color: selected ? AppColors.onPrimary : AppColors.primary,
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Text(
+                category.name,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: selected ? AppColors.onPrimary : AppColors.foreground,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

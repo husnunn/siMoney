@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "937055995641",
+    "project_id": "finance-e346c",
+    "storage_bucket": "finance-e346c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:937055995641:android:1e4f4adec2aff4b371c428",
+        "android_client_info": {
+          "package_name": "id.gritech.simoney"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "937055995641-t7de4n5afqii4s2s9tlql2v10em9roni.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB42L7yPMuZdEtapcgXq_F75Ci2ZEUHvcg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "937055995641-t7de4n5afqii4s2s9tlql2v10em9roni.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "937055995641-dc8sq7ve00ar07rhmnvau8ov74mptah1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "id.gritech.simoney"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

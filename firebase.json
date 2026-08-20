@@ -1,0 +1,34 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "finance-e346c",
+          "appId": "1:937055995641:android:1e4f4adec2aff4b371c428",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "finance-e346c",
+          "appId": "1:937055995641:ios:b15637c860fac18171c428",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "finance-e346c",
+          "configurations": {
+            "android": "1:937055995641:android:1e4f4adec2aff4b371c428",
+            "ios": "1:937055995641:ios:b15637c860fac18171c428"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
