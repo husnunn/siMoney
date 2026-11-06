@@ -10,11 +10,12 @@ import '../utils/formatters.dart';
 
 /// Donut breakdown of [segments] (already sorted descending), with the
 /// grand [total] shown in the empty center and tap-to-select per slice.
-class ExpenseDonutChart extends StatelessWidget {
-  const ExpenseDonutChart({
+class CategoryDonutChart extends StatelessWidget {
+  const CategoryDonutChart({
     super.key,
     required this.segments,
     required this.total,
+    required this.centerLabel,
     this.selectedCategoryId,
     this.onSegmentTap,
     this.size = 180,
@@ -23,6 +24,7 @@ class ExpenseDonutChart extends StatelessWidget {
 
   final List<CategorySpend> segments;
   final int total;
+  final String centerLabel;
   final String? selectedCategoryId;
   final ValueChanged<String?>? onSegmentTap;
   final double size;
@@ -91,7 +93,7 @@ class ExpenseDonutChart extends StatelessWidget {
                     ),
                   ),
                 ),
-                Text('Total Pengeluaran', style: textTheme.bodySmall),
+                Text(centerLabel, style: textTheme.bodySmall),
               ],
             ),
           ],

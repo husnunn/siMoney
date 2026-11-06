@@ -112,13 +112,14 @@ class IncomeExpenseScreen extends StatelessWidget {
           appBar: AppBar(
             title: Text(title),
             actions: [
-              if (!_isIncome)
-                IconButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushNamed(AnalyticsScreen.routeName),
-                  icon: const Icon(Icons.bar_chart_outlined),
-                  tooltip: 'Analitik Pengeluaran',
+              IconButton(
+                onPressed: () => Navigator.of(context).pushNamed(
+                  AnalyticsScreen.routeName,
+                  arguments: type,
                 ),
+                icon: const Icon(Icons.bar_chart_outlined),
+                tooltip: 'Analitik ${_isIncome ? 'Pemasukan' : 'Pengeluaran'}',
+              ),
             ],
           ),
           floatingActionButton: FloatingActionButton(

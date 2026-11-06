@@ -54,7 +54,10 @@ class SiMoneyApp extends StatelessWidget {
           case CategoriesScreen.routeName:
             page = const CategoriesScreen();
           case AnalyticsScreen.routeName:
-            page = const AnalyticsScreen();
+            final args = settings.arguments;
+            page = AnalyticsScreen(
+              type: args is TransactionType ? args : TransactionType.expense,
+            );
           case AddEditTransactionScreen.routeName:
             final args = settings.arguments;
             if (args is String) {

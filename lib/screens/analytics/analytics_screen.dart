@@ -6,18 +6,20 @@ import '../../state/app_store.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../utils/formatters.dart';
+import '../../widgets/category_donut_chart.dart';
 import '../../widgets/category_rank_list.dart';
 import '../../widgets/empty_state.dart';
-import '../../widgets/expense_donut_chart.dart';
 import '../../widgets/glow_hero_card.dart';
 import '../../widgets/period_pill_selector.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/status_pill.dart';
 
 class AnalyticsScreen extends StatefulWidget {
-  const AnalyticsScreen({super.key});
+  const AnalyticsScreen({super.key, required this.type});
 
   static const routeName = '/analytics';
+
+  final TransactionType type;
 
   @override
   State<AnalyticsScreen> createState() => _AnalyticsScreenState();
@@ -27,6 +29,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   FlowPeriod _period = FlowPeriod.month;
   DateTime _anchor = DateTime.now();
   String? _selectedCategoryId;
+
+  bool get _isIncome => widget.type == TransactionType.income;
 
   String _periodLabel(DateTime anchor) {
     switch (_period) {
@@ -121,10 +125,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       listenable: appStore,
       builder: (context, _) {
         final textTheme = Theme.of(context).textTheme;
+        final isIncome = _isIncome;
+        final color = isIncome ? AppColors.income : AppColors.expense;
+        final totalLabel = isIncome ? 'Total Pemasukan' : 'Total Pengeluaran';
         final range = _rangeFor(_anchor);
         final txs = AnalyticsCalculator.transactionsInRange(
           appStore.transactions,
-          TransactionType.expense,
+          widget.type,
           range.start,
           range.end,
         );
@@ -138,7 +145,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         final prevRange = _rangeFor(_previousAnchor(_anchor));
         final prevTxs = AnalyticsCalculator.transactionsInRange(
           appStore.transactions,
-          TransactionType.expense,
+          widget.type,
           prevRange.start,
           prevRange.end,
         );
@@ -147,10 +154,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           AnalyticsCalculator.totalAmount(prevTxs),
         );
         final trendUp = trendPct != null && trendPct >= 0;
-        final trendGood = trendPct == null ? true : !trendUp;
+        final trendGood = trendPct == null
+            ? true
+            : (isIncome ? trendUp : !trendUp);
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Analitik Pengeluaran')),
+          appBar: AppBar(
+            title: Text(isIncome ? 'Analitik Pemasukan' : 'Analitik Pengeluaran'),
+          ),
           body: ListView(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.md,
@@ -170,7 +181,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               GlowHeroCard(
-                glowColor: AppColors.expense,
+                glowColor: color,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -212,15 +223,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    Text('Total Pengeluaran', style: textTheme.bodyMedium),
+                    Text(totalLabel, style: textTheme.bodyMedium),
                     const SizedBox(height: AppSpacing.xs),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           formatRupiah(total),
-                          style: textTheme.displayLarge
-                              ?.copyWith(color: AppColors.expense),
+                          style: textTheme.displayLarge?.copyWith(color: color),
                         ),
                         if (trendPct != null) ...[
                           const SizedBox(width: AppSpacing.sm),
@@ -249,14 +259,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               const SizedBox(height: AppSpacing.md),
               if (total == 0)
                 EmptyState(
-                  icon: Icons.north_east,
-                  title: 'Belum ada pengeluaran ${_emptyStateLabel()}',
+                  icon: isIncome ? Icons.south_west : Icons.north_east,
+                  title:
+                      'Belum ada ${isIncome ? 'pemasukan' : 'pengeluaran'} ${_emptyStateLabel()}',
                 )
               else ...[
                 Center(
-                  child: ExpenseDonutChart(
+                  child: CategoryDonutChart(
                     segments: segments,
                     total: total,
+                    centerLabel: totalLabel,
                     selectedCategoryId: _selectedCategoryId,
                     onSegmentTap: (id) =>
                         setState(() => _selectedCategoryId = id),
