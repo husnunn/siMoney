@@ -59,6 +59,12 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(flex: 2),
+              Image.asset(
+                'assets/icon/logo-simoney.png',
+                width: 96,
+                height: 96,
+              ),
+              const SizedBox(height: AppSpacing.md),
               Text(
                 'SiMoney',
                 textAlign: TextAlign.center,
@@ -71,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(
                 'Catat keuangan bersama dengan sederhana.',
                 textAlign: TextAlign.center,
-                style: textTheme.bodyLarge?.copyWith(color: AppColors.muted),
+                style: textTheme.bodyLarge?.copyWith(color: AppColors.outline),
               ),
               const Spacer(flex: 3),
               PrimaryButton(
@@ -85,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(
                 'Dengan masuk, kamu menyetujui penggunaan akun Google untuk autentikasi.',
                 textAlign: TextAlign.center,
-                style: textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                style: textTheme.bodySmall?.copyWith(color: AppColors.outline),
               ),
               const SizedBox(height: AppSpacing.lg),
             ],

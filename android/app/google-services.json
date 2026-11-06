@@ -14,6 +14,58 @@
       },
       "oauth_client": [
         {
+          "client_id": "937055995641-0v33qmipa0ga544dnoj16qju53nocvk1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "id.gritech.simoney",
+            "certificate_hash": "76bff37a567a2778ba01bdd5bf99b0b20e265d13"
+          }
+        },
+        {
+          "client_id": "937055995641-t7de4n5afqii4s2s9tlql2v10em9roni.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB42L7yPMuZdEtapcgXq_F75Ci2ZEUHvcg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "937055995641-t7de4n5afqii4s2s9tlql2v10em9roni.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "937055995641-dc8sq7ve00ar07rhmnvau8ov74mptah1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "id.gritech.simoney"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:937055995641:android:ea062d870bb4715271c428",
+        "android_client_info": {
+          "package_name": "id.gritech.simoney.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "937055995641-7s58q3srov6bbbqooo3hm0vm13nas5vb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "id.gritech.simoney.debug",
+            "certificate_hash": "7c8caf96ce12e5555382bcbe37f9a5304b376221"
+          }
+        },
+        {
           "client_id": "937055995641-t7de4n5afqii4s2s9tlql2v10em9roni.apps.googleusercontent.com",
           "client_type": 3
         }

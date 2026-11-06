@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 
 import 'firebase_options.dart';
 import 'models/models.dart';
+import 'screens/analytics/analytics_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/category/categories_screen.dart';
 import 'screens/ledger/invite_member_screen.dart';
 import 'screens/onboarding/create_join_ledger_screen.dart';
+import 'screens/savings/add_contribution_screen.dart';
+import 'screens/savings/add_edit_savings_goal_screen.dart';
+import 'screens/savings/savings_goal_detail_screen.dart';
 import 'screens/shell/main_shell.dart';
 import 'screens/transaction/add_edit_transaction_screen.dart';
 import 'screens/transaction/transaction_detail_screen.dart';
@@ -49,6 +53,8 @@ class SiMoneyApp extends StatelessWidget {
             page = const InviteMemberScreen();
           case CategoriesScreen.routeName:
             page = const CategoriesScreen();
+          case AnalyticsScreen.routeName:
+            page = const AnalyticsScreen();
           case AddEditTransactionScreen.routeName:
             final args = settings.arguments;
             if (args is String) {
@@ -62,6 +68,25 @@ class SiMoneyApp extends StatelessWidget {
             page = TransactionDetailScreen(
               transactionId: settings.arguments as String? ?? '',
             );
+          case AddEditSavingsGoalScreen.routeName:
+            final args = settings.arguments;
+            page = AddEditSavingsGoalScreen(
+              goalId: args is String ? args : null,
+            );
+          case SavingsGoalDetailScreen.routeName:
+            page = SavingsGoalDetailScreen(
+              goalId: settings.arguments as String? ?? '',
+            );
+          case AddContributionScreen.routeName:
+            final args = settings.arguments;
+            if (args is AddContributionArgs) {
+              page = AddContributionScreen(
+                goalId: args.goalId,
+                initialType: args.type,
+              );
+            } else {
+              page = const LoginScreen();
+            }
           default:
             page = const LoginScreen();
         }
@@ -128,11 +153,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.surface,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Image.asset(
+              'assets/icon/logo-simoney.png',
+              width: 96,
+              height: 96,
+            ),
+            const SizedBox(height: 16),
             Text(
               'SiMoney',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -144,7 +175,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Text(
               'Keuangan bersama, sederhana.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.muted,
+                    color: AppColors.outline,
                   ),
             ),
             const SizedBox(height: 24),

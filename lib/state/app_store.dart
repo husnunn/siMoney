@@ -6,8 +6,13 @@ import 'package:flutter/foundation.dart';
 import '../models/models.dart';
 import '../services/category_repository.dart';
 import '../services/ledger_repository.dart';
+import '../services/savings_repository.dart';
 import '../services/transaction_repository.dart';
 import '../services/user_repository.dart';
+import '../utils/formatters.dart';
+import 'savings_calculator.dart';
+
+enum FlowPeriod { day, week, month }
 
 /// App-wide state backed by Firestore realtime listeners.
 class AppStore extends ChangeNotifier {
@@ -16,24 +21,30 @@ class AppStore extends ChangeNotifier {
     LedgerRepository? ledgerRepository,
     TransactionRepository? transactionRepository,
     CategoryRepository? categoryRepository,
+    SavingsRepository? savingsRepository,
   })  : _users = userRepository ?? UserRepository(),
         _ledgers = ledgerRepository ?? LedgerRepository(),
         _transactions = transactionRepository ?? TransactionRepository(),
-        _categories = categoryRepository ?? CategoryRepository();
+        _categories = categoryRepository ?? CategoryRepository(),
+        _savings = savingsRepository ?? SavingsRepository();
 
   final UserRepository _users;
   final LedgerRepository _ledgers;
   final TransactionRepository _transactions;
   final CategoryRepository _categories;
+  final SavingsRepository _savings;
 
   AppUser? currentUser;
   Ledger? currentLedger;
   List<Ledger> ledgers = [];
   List<TxRecord> transactions = [];
   List<TxCategory> customCategories = [];
+  List<SavingsGoal> savingsGoals = [];
+  List<SavingsContribution> savingsContributions = [];
   List<AppUser> members = [];
   DateTime selectedMonth = DateTime(DateTime.now().year, DateTime.now().month);
-  DateTime selectedFlowDate = DateTime(
+  FlowPeriod selectedFlowPeriod = FlowPeriod.day;
+  DateTime selectedFlowAnchor = DateTime(
     DateTime.now().year,
     DateTime.now().month,
     DateTime.now().day,
@@ -45,6 +56,8 @@ class AppStore extends ChangeNotifier {
   StreamSubscription<List<Ledger>>? _ledgersListSub;
   StreamSubscription<List<TxRecord>>? _txSub;
   StreamSubscription<List<TxCategory>>? _catSub;
+  StreamSubscription<List<SavingsGoal>>? _goalsSub;
+  StreamSubscription<List<SavingsContribution>>? _contribSub;
 
   // F11: Emits newly added transactions created by other members.
   final StreamController<TxRecord> _txNoticeController =
@@ -78,16 +91,88 @@ class AppStore extends ChangeNotifier {
 
   int get balance => totalIncome - totalExpense;
 
-  List<TxRecord> transactionsForFlowDate(TransactionType type) {
-    return transactions
+  int get allTimeTotalIncome => SavingsCalculator.allTimeTotalIncome(transactions);
+
+  int get allTimeTotalExpense =>
+      SavingsCalculator.allTimeTotalExpense(transactions);
+
+  int get allTimeBalance => allTimeTotalIncome - allTimeTotalExpense;
+
+  int get availableAppBalance =>
+      SavingsCalculator.availableAppBalance(transactions, savingsContributions);
+
+  int get totalSavings =>
+      SavingsCalculator.totalSavingsAcrossGoals(savingsContributions);
+
+  List<SavingsContribution> get contributionsForSelectedMonth {
+    return savingsContributions
         .where(
-          (t) =>
-              t.type == type &&
-              t.createdAt.year == selectedFlowDate.year &&
-              t.createdAt.month == selectedFlowDate.month &&
-              t.createdAt.day == selectedFlowDate.day,
+          (c) =>
+              c.date.year == selectedMonth.year &&
+              c.date.month == selectedMonth.month,
         )
         .toList();
+  }
+
+  int get allTimeSavingsDeposits =>
+      SavingsCalculator.totalDeposits(savingsContributions);
+
+  int get allTimeSavingsWithdrawals =>
+      SavingsCalculator.totalWithdrawals(savingsContributions);
+
+  int get monthlySavingsDeposits =>
+      SavingsCalculator.totalDeposits(contributionsForSelectedMonth);
+
+  int get monthlySavingsWithdrawals =>
+      SavingsCalculator.totalWithdrawals(contributionsForSelectedMonth);
+
+  int goalProgress(String goalId) =>
+      SavingsCalculator.goalProgress(goalId, savingsContributions);
+
+  List<SavingsContribution> contributionsForGoal(String goalId) {
+    return savingsContributions.where((c) => c.goalId == goalId).toList();
+  }
+
+  SavingsGoal? goalById(String id) {
+    for (final g in savingsGoals) {
+      if (g.id == id) return g;
+    }
+    return null;
+  }
+
+  List<TxRecord> transactionsForFlowPeriod(TransactionType type) {
+    switch (selectedFlowPeriod) {
+      case FlowPeriod.day:
+        return transactions
+            .where(
+              (t) =>
+                  t.type == type &&
+                  t.createdAt.year == selectedFlowAnchor.year &&
+                  t.createdAt.month == selectedFlowAnchor.month &&
+                  t.createdAt.day == selectedFlowAnchor.day,
+            )
+            .toList();
+      case FlowPeriod.week:
+        final start = startOfWeek(selectedFlowAnchor);
+        final end = start.add(const Duration(days: 7));
+        return transactions
+            .where(
+              (t) =>
+                  t.type == type &&
+                  !t.createdAt.isBefore(start) &&
+                  t.createdAt.isBefore(end),
+            )
+            .toList();
+      case FlowPeriod.month:
+        return transactions
+            .where(
+              (t) =>
+                  t.type == type &&
+                  t.createdAt.year == selectedFlowAnchor.year &&
+                  t.createdAt.month == selectedFlowAnchor.month,
+            )
+            .toList();
+    }
   }
 
   bool get hasLedger => currentLedger != null || ledgers.isNotEmpty;
@@ -232,6 +317,16 @@ class AppStore extends ChangeNotifier {
       notifyListeners();
     });
 
+    _goalsSub = _savings.watchGoals(ledgerId).listen((list) {
+      savingsGoals = list;
+      notifyListeners();
+    });
+
+    _contribSub = _savings.watchContributions(ledgerId).listen((list) {
+      savingsContributions = list;
+      notifyListeners();
+    });
+
     notifyListeners();
   }
 
@@ -239,12 +334,18 @@ class AppStore extends ChangeNotifier {
     await _ledgerSub?.cancel();
     await _txSub?.cancel();
     await _catSub?.cancel();
+    await _goalsSub?.cancel();
+    await _contribSub?.cancel();
     _ledgerSub = null;
     _txSub = null;
     _catSub = null;
+    _goalsSub = null;
+    _contribSub = null;
     currentLedger = null;
     transactions = [];
     customCategories = [];
+    savingsGoals = [];
+    savingsContributions = [];
     members = [];
     _knownTxIds.clear();
     _txListenerInitialized = false;
@@ -284,8 +385,30 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSelectedFlowDate(DateTime date) {
-    selectedFlowDate = DateTime(date.year, date.month, date.day);
+  void setFlowPeriod(FlowPeriod period) {
+    selectedFlowPeriod = period;
+    notifyListeners();
+  }
+
+  void setSelectedFlowAnchor(DateTime date) {
+    selectedFlowAnchor = DateTime(date.year, date.month, date.day);
+    notifyListeners();
+  }
+
+  void shiftFlowPeriod(int direction) {
+    switch (selectedFlowPeriod) {
+      case FlowPeriod.day:
+        selectedFlowAnchor = selectedFlowAnchor.add(Duration(days: direction));
+      case FlowPeriod.week:
+        selectedFlowAnchor =
+            selectedFlowAnchor.add(Duration(days: 7 * direction));
+      case FlowPeriod.month:
+        selectedFlowAnchor = DateTime(
+          selectedFlowAnchor.year,
+          selectedFlowAnchor.month + direction,
+          1,
+        );
+    }
     notifyListeners();
   }
 
@@ -360,6 +483,131 @@ class AppStore extends ChangeNotifier {
     await _categories.deleteCustomCategory(
       ledgerId: ledger.id,
       categoryId: categoryId,
+    );
+  }
+
+  Future<void> addSavingsGoal({
+    required String name,
+    required int targetAmount,
+    DateTime? targetDate,
+  }) async {
+    final user = currentUser;
+    final ledger = currentLedger;
+    if (user == null || ledger == null) {
+      throw StateError('Ledger belum dipilih');
+    }
+    if (targetAmount <= 0) {
+      throw SavingsValidationException('Target harus lebih dari 0');
+    }
+    await _savings.addGoal(
+      ledgerId: ledger.id,
+      name: name.trim(),
+      targetAmount: targetAmount,
+      targetDate: targetDate,
+      createdBy: user.id,
+    );
+  }
+
+  Future<void> updateSavingsGoal(SavingsGoal goal) async {
+    final ledger = currentLedger;
+    if (ledger == null) throw StateError('Ledger belum dipilih');
+    await _savings.updateGoal(ledgerId: ledger.id, goal: goal);
+  }
+
+  Future<void> archiveSavingsGoal(String goalId) async {
+    final goal = goalById(goalId);
+    if (goal == null) return;
+    await updateSavingsGoal(goal.copyWith(status: SavingsGoalStatus.archived));
+  }
+
+  Future<void> reactivateSavingsGoal(String goalId) async {
+    final goal = goalById(goalId);
+    if (goal == null) return;
+    await updateSavingsGoal(goal.copyWith(status: SavingsGoalStatus.active));
+  }
+
+  Future<void> deleteSavingsGoal(String goalId) async {
+    final ledger = currentLedger;
+    if (ledger == null) throw StateError('Ledger belum dipilih');
+    if (goalProgress(goalId) != 0) {
+      throw SavingsValidationException(
+        'Tarik semua dana sebelum menghapus target ini, atau arsipkan saja.',
+      );
+    }
+    // Progress is guaranteed 0 here, so every contribution for this goal
+    // nets out already — remove them too so they don't linger as orphaned
+    // records that keep inflating the all-time Masuk/Keluar stats on Beranda.
+    for (final c in contributionsForGoal(goalId)) {
+      await _savings.deleteContribution(
+        ledgerId: ledger.id,
+        contributionId: c.id,
+      );
+    }
+    await _savings.deleteGoal(ledgerId: ledger.id, goalId: goalId);
+  }
+
+  Future<void> addSavingsContribution({
+    required String goalId,
+    required int amount,
+    required DateTime date,
+    required String note,
+    required ContributionType type,
+    ContributionSource source = ContributionSource.appBalance,
+  }) async {
+    final user = currentUser;
+    final ledger = currentLedger;
+    if (user == null || ledger == null) {
+      throw StateError('Ledger belum dipilih');
+    }
+    final goal = goalById(goalId);
+    if (goal == null) throw StateError('Target tidak ditemukan');
+
+    SavingsCalculator.validateContribution(
+      goal: goal,
+      type: type,
+      source: source,
+      amount: amount,
+      txs: transactions,
+      allContributions: savingsContributions,
+    );
+
+    // Captured before the write: the Firestore SDK can resolve the local
+    // cache (and notify the watchContributions stream) before this await
+    // returns, so reading goalProgress afterwards would double-count this
+    // same contribution.
+    final progressBeforeWrite = goalProgress(goalId);
+
+    await _savings.addContribution(
+      ledgerId: ledger.id,
+      goalId: goalId,
+      amount: amount,
+      date: date,
+      note: note.trim(),
+      type: type,
+      source: source,
+      createdBy: user.id,
+      createdByName: user.name,
+    );
+
+    final newProgress = progressBeforeWrite +
+        (type == ContributionType.deposit ? amount : -amount);
+    final shouldComplete = newProgress >= goal.targetAmount &&
+        goal.status == SavingsGoalStatus.active;
+    final shouldRevert = newProgress < goal.targetAmount &&
+        goal.status == SavingsGoalStatus.completed;
+    if (shouldComplete) {
+      await updateSavingsGoal(goal.copyWith(status: SavingsGoalStatus.completed));
+    } else if (shouldRevert) {
+      await updateSavingsGoal(goal.copyWith(status: SavingsGoalStatus.active));
+    }
+  }
+
+  Future<void> deleteSavingsContribution(String contributionId) async {
+    final ledger = currentLedger;
+    if (ledger == null) throw StateError('Ledger belum dipilih');
+    await _savings.deleteContribution(
+      ledgerId: ledger.id,
+      contributionId: contributionId,
     );
   }
 

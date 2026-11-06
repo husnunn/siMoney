@@ -28,4 +28,14 @@ abstract final class FsPaths {
 
   static CollectionReference<Map<String, dynamic>> categories(String ledgerId) =>
       ledger(ledgerId).collection('categories');
+
+  static CollectionReference<Map<String, dynamic>> savingsGoals(
+    String ledgerId,
+  ) =>
+      ledger(ledgerId).collection('savingsGoals');
+
+  static CollectionReference<Map<String, dynamic>> savingsContributions(
+    String ledgerId,
+  ) =>
+      ledger(ledgerId).collection('savingsContributions');
 }

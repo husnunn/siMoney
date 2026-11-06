@@ -270,6 +270,184 @@ abstract final class CategoryIcons {
   }
 }
 
+enum SavingsGoalStatus { active, completed, archived }
+
+class SavingsGoal {
+  const SavingsGoal({
+    required this.id,
+    required this.name,
+    required this.targetAmount,
+    this.targetDate,
+    required this.status,
+    required this.createdAt,
+    required this.createdBy,
+  });
+
+  final String id;
+  final String name;
+  final int targetAmount;
+  final DateTime? targetDate;
+  final SavingsGoalStatus status;
+  final DateTime createdAt;
+  final String createdBy;
+
+  SavingsGoal copyWith({
+    String? id,
+    String? name,
+    int? targetAmount,
+    DateTime? targetDate,
+    bool clearTargetDate = false,
+    SavingsGoalStatus? status,
+    DateTime? createdAt,
+    String? createdBy,
+  }) {
+    return SavingsGoal(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      targetAmount: targetAmount ?? this.targetAmount,
+      targetDate:
+          clearTargetDate ? null : (targetDate ?? this.targetDate),
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      createdBy: createdBy ?? this.createdBy,
+    );
+  }
+
+  Map<String, dynamic> toMap({bool includeCreatedAt = false}) {
+    return {
+      'name': name,
+      'targetAmount': targetAmount,
+      'targetDate':
+          targetDate != null ? Timestamp.fromDate(targetDate!) : null,
+      'status': status.name,
+      'createdBy': createdBy,
+      if (includeCreatedAt) 'createdAt': FieldValue.serverTimestamp(),
+    };
+  }
+
+  factory SavingsGoal.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data() ?? {};
+    final statusRaw = data['status'] as String?;
+    final createdAt = data['createdAt'];
+    final targetDate = data['targetDate'];
+    return SavingsGoal(
+      id: doc.id,
+      name: data['name'] as String? ?? '',
+      targetAmount: (data['targetAmount'] as num?)?.toInt() ?? 0,
+      targetDate: targetDate is Timestamp ? targetDate.toDate() : null,
+      status: SavingsGoalStatus.values.firstWhere(
+        (s) => s.name == statusRaw,
+        orElse: () => SavingsGoalStatus.active,
+      ),
+      createdAt: createdAt is Timestamp ? createdAt.toDate() : DateTime.now(),
+      createdBy: data['createdBy'] as String? ?? '',
+    );
+  }
+}
+
+enum ContributionType { deposit, withdraw }
+
+enum ContributionSource { appBalance, external }
+
+class SavingsContribution {
+  const SavingsContribution({
+    required this.id,
+    required this.goalId,
+    required this.amount,
+    required this.date,
+    required this.note,
+    required this.type,
+    required this.source,
+    required this.createdBy,
+    required this.createdByName,
+  });
+
+  final String id;
+  final String goalId;
+  final int amount;
+  final DateTime date;
+  final String note;
+  final ContributionType type;
+  final ContributionSource source;
+  final String createdBy;
+  final String createdByName;
+
+  bool get isDeposit => type == ContributionType.deposit;
+
+  /// Signed effect on goal progress: + for deposit, - for withdraw.
+  int get progressDelta => isDeposit ? amount : -amount;
+
+  /// Signed effect on the app's available balance: negative for
+  /// deposit+appBalance, positive for withdraw+appBalance, 0 for external.
+  int get appBalanceDelta {
+    if (source == ContributionSource.external) return 0;
+    return isDeposit ? -amount : amount;
+  }
+
+  SavingsContribution copyWith({
+    String? id,
+    String? goalId,
+    int? amount,
+    DateTime? date,
+    String? note,
+    ContributionType? type,
+    ContributionSource? source,
+    String? createdBy,
+    String? createdByName,
+  }) {
+    return SavingsContribution(
+      id: id ?? this.id,
+      goalId: goalId ?? this.goalId,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      note: note ?? this.note,
+      type: type ?? this.type,
+      source: source ?? this.source,
+      createdBy: createdBy ?? this.createdBy,
+      createdByName: createdByName ?? this.createdByName,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'goalId': goalId,
+      'amount': amount,
+      'date': Timestamp.fromDate(date),
+      'note': note,
+      'type': type.name,
+      'source': source.name,
+      'createdBy': createdBy,
+      'createdByName': createdByName,
+    };
+  }
+
+  factory SavingsContribution.fromDoc(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
+    final data = doc.data() ?? {};
+    final typeRaw = data['type'] as String?;
+    final sourceRaw = data['source'] as String?;
+    final date = data['date'];
+    return SavingsContribution(
+      id: doc.id,
+      goalId: data['goalId'] as String? ?? '',
+      amount: (data['amount'] as num?)?.toInt() ?? 0,
+      date: date is Timestamp ? date.toDate() : DateTime.now(),
+      note: data['note'] as String? ?? '',
+      type: ContributionType.values.firstWhere(
+        (t) => t.name == typeRaw,
+        orElse: () => ContributionType.deposit,
+      ),
+      source: ContributionSource.values.firstWhere(
+        (s) => s.name == sourceRaw,
+        orElse: () => ContributionSource.appBalance,
+      ),
+      createdBy: data['createdBy'] as String? ?? '',
+      createdByName: data['createdByName'] as String? ?? 'Pengguna',
+    );
+  }
+}
+
 abstract final class DefaultCategories {
   static const List<TxCategory> all = [
     TxCategory(

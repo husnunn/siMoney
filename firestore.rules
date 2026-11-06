@@ -83,6 +83,25 @@ service cloud.firestore {
         allow update, delete: if isMember(ledgerId)
           && resource.data.createdBy == request.auth.uid;
       }
+
+      match /savingsGoals/{goalId} {
+        allow read: if isMember(ledgerId);
+        allow create: if isMember(ledgerId)
+          && request.resource.data.createdBy == request.auth.uid;
+        // Shared goal: any member may edit or archive it, not just the creator.
+        allow update: if isMember(ledgerId);
+        allow delete: if isMember(ledgerId);
+      }
+
+      match /savingsContributions/{contribId} {
+        allow read: if isMember(ledgerId);
+        allow create: if isMember(ledgerId)
+          && request.resource.data.createdBy == request.auth.uid;
+        // Contributions are immutable once written; corrections go through delete.
+        allow update: if false;
+        allow delete: if isMember(ledgerId)
+          && resource.data.createdBy == request.auth.uid;
+      }
     }
   }
 }

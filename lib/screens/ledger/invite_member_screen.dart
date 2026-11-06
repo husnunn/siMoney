@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../state/app_store.dart';
 import '../../models/user.dart';
@@ -31,16 +32,16 @@ class InviteMemberScreen extends StatelessWidget {
             children: [
               Text(
                 'Bagikan kode ini agar orang lain bisa bergabung ke buku kas.',
-                style: textTheme.bodyLarge?.copyWith(color: AppColors.muted),
+                style: textTheme.bodyLarge,
               ),
               const SizedBox(height: AppSpacing.xl),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  color: AppColors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  border: Border.all(color: AppColors.outlineVariant),
                 ),
                 child: Column(
                   children: [
@@ -75,10 +76,14 @@ class InviteMemberScreen extends StatelessWidget {
               SecondaryButton(
                 label: 'Bagikan tautan',
                 icon: Icons.share_outlined,
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('simoney.app/join/$code (mock)'),
+                onPressed: () async {
+                  final ledgerName =
+                      appStore.currentLedger?.name ?? 'buku kas';
+                  await SharePlus.instance.share(
+                    ShareParams(
+                      text: 'Gabung ke buku kas "$ledgerName" di SiMoney '
+                          'dengan kode undangan: $code',
+                      subject: 'Undangan SiMoney - $ledgerName',
                     ),
                   );
                 },
@@ -97,11 +102,11 @@ class InviteMemberScreen extends StatelessWidget {
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.mutedSurface,
+                        backgroundColor: AppColors.surfaceContainerHigh,
                         child: Text(
                           user.initials,
                           style: textTheme.labelLarge?.copyWith(
-                            color: AppColors.primary,
+                            color: AppColors.onSurface,
                           ),
                         ),
                       ),
@@ -111,7 +116,7 @@ class InviteMemberScreen extends StatelessWidget {
                           ? Text(
                               'Owner',
                               style: textTheme.bodySmall?.copyWith(
-                                color: AppColors.accent,
+                                color: AppColors.primary,
                                 fontWeight: FontWeight.w600,
                               ),
                             )

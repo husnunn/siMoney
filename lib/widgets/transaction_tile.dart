@@ -5,6 +5,7 @@ import '../models/user.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../utils/formatters.dart';
+import 'avatar_monogram.dart';
 
 class TransactionTile extends StatelessWidget {
   const TransactionTile({
@@ -13,6 +14,7 @@ class TransactionTile extends StatelessWidget {
     required this.categoryName,
     required this.categoryIcon,
     required this.author,
+    this.tag,
     this.onTap,
   });
 
@@ -20,6 +22,7 @@ class TransactionTile extends StatelessWidget {
   final String categoryName;
   final IconData categoryIcon;
   final AppUser? author;
+  final Widget? tag;
   final VoidCallback? onTap;
 
   @override
@@ -46,32 +49,32 @@ class TransactionTile extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.md,
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: AppColors.mutedSurface,
-              child: Text(
-                initials,
-                style: textTheme.labelLarge?.copyWith(
-                  color: AppColors.primary,
-                  fontSize: 13,
-                ),
-              ),
-            ),
+            AvatarMonogram(initials: initials),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    categoryName,
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          categoryName,
+                          style: textTheme.labelLarge,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (tag != null) ...[
+                        const SizedBox(width: AppSpacing.xs),
+                        tag!,
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -84,9 +87,7 @@ class TransactionTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       transaction.note,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: AppColors.muted,
-                      ),
+                      style: textTheme.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -97,10 +98,7 @@ class TransactionTile extends StatelessWidget {
             const SizedBox(width: AppSpacing.sm),
             Text(
               '$sign${formatRupiah(transaction.amount)}',
-              style: textTheme.titleMedium?.copyWith(
-                color: amountColor,
-                fontWeight: FontWeight.w600,
-              ),
+              style: textTheme.labelLarge?.copyWith(color: amountColor),
             ),
           ],
         ),

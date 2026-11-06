@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Tambah Transaksi - Aura Wealth</title>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration for Aura Wealth Theme -->
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            aura: {
+              bg: '#0b0e14',
+              surface: '#131822',
+              card: '#181d29',
+              cardElevated: '#1f2636',
+              border: '#262f42',
+              borderLight: '#323d54',
+              gold: '#e5a93c',
+              goldLight: '#f6be59',
+              goldDark: '#b87c1e',
+              emerald: '#10b981',
+              emeraldDark: '#047857',
+              rose: '#f43f5e',
+              textPrimary: '#f8fafc',
+              textSecondary: '#94a3b8',
+              textMuted: '#64748b'
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Inter', 'Segoe UI', 'Roboto', 'sans-serif']
+          },
+          boxShadow: {
+            'gold-glow': '0 0 25px -4px rgba(229, 169, 60, 0.35)',
+            'emerald-glow': '0 0 20px -3px rgba(16, 185, 129, 0.35)',
+            'card-soft': '0 10px 30px -8px rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }
+    };
+  </script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- Custom Styles: Aura Theme Specifics -->
+<style data-purpose="custom-styling">
+    body {
+      background-color: #05070a;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    
+    /* Hide native number spin buttons */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    
+    /* Smooth custom scrollbars for category list */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="flex justify-center items-center min-h-screen text-aura-textPrimary antialiased selection:bg-aura-gold selection:text-aura-bg">
+<!-- BEGIN: MobileContainer -->
+<!-- Container mimicking an iPhone device display screen -->
+<div class="relative w-full max-w-[425px] h-[890px] max-h-screen bg-aura-bg flex flex-col overflow-hidden shadow-2xl border border-aura-border/40 sm:rounded-[44px]">
+<!-- BEGIN: iOSStatusBar -->
+<header class="w-full pt-3 px-8 flex justify-between items-center text-xs font-semibold tracking-tight text-aura-textPrimary z-30 select-none">
+<!-- Time -->
+<span>10.43</span>
+<!-- Dynamic Island / Speaker cutout aesthetic spacer -->
+<div class="w-24 h-4 bg-black/40 rounded-full hidden sm:block border border-white/5"></div>
+<!-- Status Icons (Network, WiFi, Battery) -->
+<div class="flex items-center space-x-2">
+<svg class="w-4 h-3.5 fill-current" viewbox="0 0 16 12">
+<rect height="4" rx="0.5" width="2.5" x="0" y="8"></rect>
+<rect height="6.5" rx="0.5" width="2.5" x="4.5" y="5.5"></rect>
+<rect height="9" rx="0.5" width="2.5" x="9" y="3"></rect>
+<rect height="12" rx="0.5" width="2.5" x="13.5" y="0"></rect>
+</svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 16 16">
+<path d="M8 3.5c-3.1 0-5.8 1.4-7.5 3.5l1.6 1.4C3.4 6.8 5.6 5.5 8 5.5s4.6 1.3 5.9 2.9l1.6-1.4C13.8 4.9 11.1 3.5 8 3.5zm0 4c-1.9 0-3.6.9-4.7 2.3L8 14.5l4.7-4.7C11.6 8.4 9.9 7.5 8 7.5z"></path>
+</svg>
+<div class="flex items-center gap-0.5">
+<div class="w-6 h-3 rounded-[3px] border border-white/70 p-0.5 flex items-center">
+<div class="h-full w-[85%] bg-aura-gold rounded-[1.5px]"></div>
+</div>
+<div class="w-0.5 h-1.5 bg-white/70 rounded-r-sm"></div>
+</div>
+</div>
+</header>
+<!-- END: iOSStatusBar -->
+<!-- BEGIN: TopNavigationBar -->
+<nav class="flex items-center justify-between px-6 pt-3 pb-2 select-none z-20">
+<button aria-label="Kembali" class="w-10 h-10 rounded-2xl bg-aura-card border border-aura-border flex items-center justify-center text-aura-textSecondary hover:text-aura-textPrimary hover:border-aura-gold/50 active:scale-95 transition-all duration-200" type="button">
+<i class="w-5 h-5 stroke-[2.5]" data-lucide="chevron-left"></i>
+</button>
+<h1 class="text-lg font-bold text-aura-textPrimary tracking-tight">
+        Tambah transaksi
+      </h1>
+<!-- Info / Help placeholder to maintain centered header balance -->
+<button aria-label="Bantuan" class="w-10 h-10 rounded-2xl bg-transparent flex items-center justify-center text-aura-textMuted hover:text-aura-textSecondary transition-colors" type="button">
+<i class="w-5 h-5" data-lucide="help-circle"></i>
+</button>
+</nav>
+<!-- END: TopNavigationBar -->
+<!-- BEGIN: FormMainContent -->
+<main class="flex-1 overflow-y-auto no-scrollbar px-6 pt-2 pb-6 flex flex-col justify-between">
+<div class="space-y-6">
+<!-- BEGIN: TransactionTypeToggle -->
+<!-- Switch between Pengeluaran (Expense) & Pemasukan (Income) -->
+<div aria-label="Tipe Transaksi" class="bg-aura-surface p-1.5 rounded-2xl border border-aura-border/80 flex items-center gap-1 shadow-inner" role="group">
+<!-- Pengeluaran Tab (Inactive in reference or toggleable) -->
+<button class="flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition-all duration-200 text-aura-textMuted hover:text-aura-textSecondary active:scale-98" id="tab-pengeluaran" type="button">
+<i class="w-4 h-4 stroke-[2.5]" data-lucide="arrow-up"></i>
+<span>Pengeluaran</span>
+</button>
+<!-- Pemasukan Tab (Active state as depicted in visual snapshot) -->
+<button class="flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-bold bg-aura-emerald text-white shadow-emerald-glow active:scale-98 transition-all duration-200" id="tab-pemasukan" type="button">
+<i class="w-4 h-4 stroke-[3]" data-lucide="check"></i>
+<span>Pemasukan</span>
+</button>
+</div>
+<!-- END: TransactionTypeToggle -->
+<!-- BEGIN: NominalSection -->
+<section aria-labelledby="label-nominal" class="space-y-1.5">
+<label class="text-xs font-semibold tracking-wider uppercase text-aura-textMuted" id="label-nominal">
+            Nominal
+          </label>
+<div class="relative bg-aura-card/60 backdrop-blur-md border border-aura-border rounded-2xl px-5 py-4 flex items-baseline gap-2.5 focus-within:border-aura-gold focus-within:ring-1 focus-within:ring-aura-gold/40 transition-all duration-300">
+<!-- Rupiah Currency Signifier -->
+<span class="text-xl sm:text-2xl font-bold text-aura-gold selection:text-white">Rp</span>
+<!-- Amount Input Display -->
+<input aria-label="Jumlah nominal uang" class="w-full bg-transparent border-0 p-0 text-3xl sm:text-4xl font-extrabold text-aura-textPrimary placeholder:text-aura-textMuted/40 focus:ring-0 focus:outline-none tracking-tight font-sans caret-aura-gold" inputmode="numeric" placeholder="0" type="text" value="0"/>
+<!-- Quick Clear / Reset Icon Indicator -->
+<button aria-label="Clear nominal" class="text-aura-textMuted hover:text-aura-gold transition-colors p-1" type="button">
+<i class="w-4 h-4" data-lucide="rotate-ccw"></i>
+</button>
+</div>
+</section>
+<!-- END: NominalSection -->
+<!-- BEGIN: CategorySection -->
+<section aria-labelledby="label-kategori" class="space-y-2.5">
+<div class="flex items-center justify-between">
+<label class="text-xs font-semibold tracking-wider uppercase text-aura-textMuted" id="label-kategori">
+              Kategori
+            </label>
+<span class="text-[11px] text-aura-gold hover:underline cursor-pointer font-medium">Kelola</span>
+</div>
+<!-- Category Chips Horizontal Carousel -->
+<div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
+<!-- Active Option: Makan -->
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-aura-gold to-aura-goldLight text-aura-bg font-bold text-sm shadow-gold-glow shrink-0 transition-transform active:scale-95" type="button">
+<i class="w-4 h-4 stroke-[2.5]" data-lucide="utensils"></i>
+<span>Makan</span>
+</button>
+<!-- Option: Transport -->
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-aura-card border border-aura-border text-aura-textSecondary hover:text-aura-textPrimary hover:border-aura-gold/40 font-medium text-sm shrink-0 transition-all active:scale-95" type="button">
+<i class="w-4 h-4 text-aura-textMuted stroke-[2]" data-lucide="car"></i>
+<span>Transport</span>
+</button>
+<!-- Option: Belanja -->
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-aura-card border border-aura-border text-aura-textSecondary hover:text-aura-textPrimary hover:border-aura-gold/40 font-medium text-sm shrink-0 transition-all active:scale-95" type="button">
+<i class="w-4 h-4 text-aura-textMuted stroke-[2]" data-lucide="shopping-bag"></i>
+<span>Belanja</span>
+</button>
+<!-- Option: Tagihan -->
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-aura-card border border-aura-border text-aura-textSecondary hover:text-aura-textPrimary hover:border-aura-gold/40 font-medium text-sm shrink-0 transition-all active:scale-95" type="button">
+<i class="w-4 h-4 text-aura-textMuted stroke-[2]" data-lucide="receipt"></i>
+<span>Tagihan</span>
+</button>
+<!-- Add Category Button -->
+<button aria-label="Tambah kategori baru" class="flex items-center justify-center w-10 h-10 rounded-xl bg-aura-surface border border-dashed border-aura-border hover:border-aura-gold text-aura-textMuted hover:text-aura-gold shrink-0 transition-all" type="button">
+<i class="w-4 h-4" data-lucide="plus"></i>
+</button>
+</div>
+</section>
+<!-- END: CategorySection -->
+<!-- BEGIN: DateSection -->
+<section aria-labelledby="label-tanggal" class="space-y-1.5">
+<label class="text-xs font-semibold tracking-wider uppercase text-aura-textMuted" id="label-tanggal">
+            Tanggal
+          </label>
+<div class="relative bg-aura-card/70 border border-aura-border hover:border-aura-borderLight rounded-2xl px-4 py-3.5 flex items-center justify-between transition-all group cursor-pointer focus-within:border-aura-gold">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-aura-surface border border-aura-border flex items-center justify-center text-aura-gold group-hover:scale-105 transition-transform">
+<i class="w-4 h-4 stroke-[2.2]" data-lucide="calendar"></i>
+</div>
+<span class="text-sm sm:text-base font-semibold text-aura-textPrimary tracking-tight">
+                28 Okt 2026
+              </span>
+</div>
+<i class="w-5 h-5 text-aura-gold/80 group-hover:text-aura-gold transition-colors" data-lucide="calendar-days"></i>
+</div>
+</section>
+<!-- END: DateSection -->
+<!-- BEGIN: NotesSection -->
+<section aria-labelledby="label-catatan" class="space-y-1.5">
+<label class="text-xs font-semibold tracking-wider uppercase text-aura-textMuted" id="label-catatan">
+            Catatan
+          </label>
+<div class="relative">
+<textarea class="w-full bg-aura-card/70 border border-aura-border rounded-2xl px-4 py-3.5 text-sm text-aura-textPrimary placeholder:text-aura-textMuted/60 resize-none focus:ring-1 focus:ring-aura-gold focus:border-aura-gold transition-all duration-200 outline-none" placeholder="Opsional (cth: makan siang, tiket bioskop)" rows="3"></textarea>
+<div class="absolute bottom-3 right-3 text-aura-textMuted/50 hover:text-aura-textMuted pointer-events-none">
+<i class="w-4 h-4" data-lucide="edit-3"></i>
+</div>
+</div>
+</section>
+<!-- END: NotesSection -->
+</div>
+<!-- BEGIN: ActionButtonArea -->
+<footer class="pt-6 pb-2">
+<button class="w-full py-4 px-6 rounded-2xl font-bold text-base bg-gradient-to-r from-aura-gold via-aura-goldLight to-aura-goldDark text-aura-bg shadow-gold-glow hover:brightness-110 active:scale-[0.985] transition-all duration-200 flex items-center justify-center gap-2" id="btn-simpan" type="button">
+<span>Simpan</span>
+<i class="w-5 h-5 stroke-[2.5]" data-lucide="arrow-right"></i>
+</button>
+</footer>
+<!-- END: ActionButtonArea -->
+</main>
+<!-- END: FormMainContent -->
+<!-- BEGIN: iOSHomeIndicator -->
+<div class="w-full pb-2 pt-1 flex justify-center items-center pointer-events-none z-30">
+<div class="w-32 h-1 bg-aura-borderLight/80 rounded-full"></div>
+</div>
+<!-- END: iOSHomeIndicator -->
+</div>
+<!-- END: MobileContainer -->
+<!-- BEGIN: InteractiveScripts -->
+<script data-purpose="lucide-initialization">
+    // Initialize feather/lucide icons smoothly
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
+  </script>
+<script data-purpose="toggle-handling">
+    // Interactive Tab Switching between Pengeluaran & Pemasukan
+    const tabPengeluaran = document.getElementById('tab-pengeluaran');
+    const tabPemasukan = document.getElementById('tab-pemasukan');
+
+    tabPengeluaran?.addEventListener('click', () => {
+      // Style Pengeluaran Active (Coral/Rose for expense in luxury theme)
+      tabPengeluaran.className = 'flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-bold bg-aura-rose text-white shadow-lg shadow-aura-rose/25 active:scale-98 transition-all duration-200';
+      // Style Pemasukan Inactive
+      tabPemasukan.className = 'flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition-all duration-200 text-aura-textMuted hover:text-aura-textSecondary active:scale-98';
+    });
+
+    tabPemasukan?.addEventListener('click', () => {
+      // Style Pemasukan Active (Emerald for income)
+      tabPemasukan.className = 'flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-bold bg-aura-emerald text-white shadow-emerald-glow active:scale-98 transition-all duration-200';
+      // Style Pengeluaran Inactive
+      tabPengeluaran.className = 'flex-1 py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition-all duration-200 text-aura-textMuted hover:text-aura-textSecondary active:scale-98';
+    });
+  </script>
+<!-- END: InteractiveScripts -->
+</body></html>

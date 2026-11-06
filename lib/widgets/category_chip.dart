@@ -21,15 +21,15 @@ class CategoryChip extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Material(
-      color: selected ? AppColors.primary : AppColors.mutedSurface,
-      borderRadius: BorderRadius.circular(24),
+      color: selected ? AppColors.primary : AppColors.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(999),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(999),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm + 2,
+            vertical: AppSpacing.md,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -37,14 +37,13 @@ class CategoryChip extends StatelessWidget {
               Icon(
                 category.icon,
                 size: 18,
-                color: selected ? AppColors.onPrimary : AppColors.primary,
+                color: selected ? AppColors.onPrimary : AppColors.onSurface,
               ),
               const SizedBox(width: AppSpacing.sm),
               Text(
                 category.name,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: selected ? AppColors.onPrimary : AppColors.foreground,
-                  fontWeight: FontWeight.w500,
+                style: textTheme.labelLarge?.copyWith(
+                  color: selected ? AppColors.onPrimary : AppColors.onSurface,
                 ),
               ),
             ],

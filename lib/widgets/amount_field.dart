@@ -25,7 +25,7 @@ class AmountField extends StatelessWidget {
       children: [
         Text(
           'Nominal',
-          style: textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+          style: textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant),
         ),
         const SizedBox(height: AppSpacing.sm),
         TextField(
@@ -51,7 +51,7 @@ class AmountField extends StatelessWidget {
             hintStyle: textTheme.displayLarge?.copyWith(
               fontSize: 40,
               fontWeight: FontWeight.w600,
-              color: AppColors.muted.withValues(alpha: 0.35),
+              color: AppColors.outline.withValues(alpha: 0.35),
             ),
             filled: false,
             border: InputBorder.none,

@@ -71,13 +71,14 @@ class _CreateJoinLedgerScreenState extends State<CreateJoinLedgerScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      appBar: AppBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: AppSpacing.md),
               Text(
                 _joinMode ? 'Gabung buku kas' : 'Buat buku kas',
                 style: textTheme.headlineMedium?.copyWith(
@@ -89,7 +90,7 @@ class _CreateJoinLedgerScreenState extends State<CreateJoinLedgerScreen> {
                 _joinMode
                     ? 'Masukkan kode undangan dari pemilik buku kas.'
                     : 'Satu tempat untuk mencatat pemasukan dan pengeluaran bersama.',
-                style: textTheme.bodyLarge?.copyWith(color: AppColors.muted),
+                style: textTheme.bodyLarge,
               ),
               const SizedBox(height: AppSpacing.xl),
               SegmentedButton<bool>(
@@ -117,13 +118,13 @@ class _CreateJoinLedgerScreenState extends State<CreateJoinLedgerScreen> {
                     if (states.contains(WidgetState.selected)) {
                       return AppColors.onPrimary;
                     }
-                    return AppColors.foreground;
+                    return AppColors.onSurface;
                   }),
                   backgroundColor: WidgetStateProperty.resolveWith((states) {
                     if (states.contains(WidgetState.selected)) {
                       return AppColors.primary;
                     }
-                    return AppColors.surface;
+                    return AppColors.surfaceContainer;
                   }),
                 ),
               ),

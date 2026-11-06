@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../models/transaction.dart';
-import '../../theme/app_colors.dart';
 import '../../state/app_store.dart';
+import '../../widgets/app_bottom_nav_bar.dart';
 import '../account/account_screen.dart';
 import '../flow/income_expense_screen.dart';
 import '../home/home_screen.dart';
+import '../savings/savings_list_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -78,34 +79,37 @@ class _MainShellState extends State<MainShell> {
           HomeScreen(),
           IncomeExpenseScreen(type: TransactionType.income),
           IncomeExpenseScreen(type: TransactionType.expense),
+          SavingsListScreen(),
           AccountScreen(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: AppBottomNavBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.mutedSurface,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
+          AppNavDestination(
+            icon: Icons.home_outlined,
+            selectedIcon: Icons.home,
             label: 'Beranda',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.arrow_downward_outlined),
-            selectedIcon: Icon(Icons.arrow_downward),
+          AppNavDestination(
+            icon: Icons.arrow_downward_outlined,
+            selectedIcon: Icons.arrow_downward,
             label: 'Pemasukan',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.arrow_upward_outlined),
-            selectedIcon: Icon(Icons.arrow_upward),
+          AppNavDestination(
+            icon: Icons.arrow_upward_outlined,
+            selectedIcon: Icons.arrow_upward,
             label: 'Pengeluaran',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
+          AppNavDestination(
+            icon: Icons.savings_outlined,
+            selectedIcon: Icons.savings,
+            label: 'Tabungan',
+          ),
+          AppNavDestination(
+            icon: Icons.person_outline,
+            selectedIcon: Icons.person,
             label: 'Akun',
           ),
         ],

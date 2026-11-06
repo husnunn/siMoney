@@ -47,6 +47,24 @@ String formatDateShort(DateTime date) {
   return '${date.day} ${_monthShort[date.month - 1]} ${date.year}';
 }
 
+DateTime startOfWeek(DateTime date) {
+  final normalized = DateTime(date.year, date.month, date.day);
+  return normalized.subtract(Duration(days: normalized.weekday - 1));
+}
+
+DateTime endOfWeek(DateTime date) => startOfWeek(date).add(const Duration(days: 6));
+
+String formatWeekRange(DateTime start, DateTime end) {
+  if (start.year == end.year && start.month == end.month) {
+    return '${start.day} – ${end.day} ${_monthShort[end.month - 1]} ${end.year}';
+  }
+  if (start.year == end.year) {
+    return '${start.day} ${_monthShort[start.month - 1]} – '
+        '${end.day} ${_monthShort[end.month - 1]} ${end.year}';
+  }
+  return '${formatDateShort(start)} – ${formatDateShort(end)}';
+}
+
 String _twoDigits(int n) => n.toString().padLeft(2, '0');
 
 String formatRelativeTime(DateTime date) {

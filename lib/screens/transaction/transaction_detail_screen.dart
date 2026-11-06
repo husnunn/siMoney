@@ -63,19 +63,12 @@ class TransactionDetailScreen extends StatelessWidget {
                 children: [
                   Text(
                     tx.isIncome ? 'Pemasukan' : 'Pengeluaran',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: AppColors.muted,
-                    ),
+                    style: textTheme.bodyMedium,
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     '$sign${formatRupiah(tx.amount)}',
-                    style: textTheme.displayLarge?.copyWith(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w600,
-                      color: amountColor,
-                      letterSpacing: -0.8,
-                    ),
+                    style: textTheme.displayLarge?.copyWith(color: amountColor),
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   _DetailRow(
@@ -119,8 +112,8 @@ class TransactionDetailScreen extends StatelessWidget {
                       height: 52,
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.destructive,
-                          side: const BorderSide(color: AppColors.destructive),
+                          foregroundColor: AppColors.error,
+                          side: const BorderSide(color: AppColors.error),
                         ),
                         onPressed: () => _confirmDelete(context, tx.id),
                         child: const Text('Hapus transaksi'),
@@ -156,7 +149,7 @@ class TransactionDetailScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.destructive),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Hapus'),
           ),
         ],
@@ -188,7 +181,7 @@ class _DetailRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 22, color: AppColors.muted),
+          Icon(icon, size: 22, color: AppColors.outline),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
