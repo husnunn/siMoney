@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import 'savings_plan_types.dart';
+
+export 'savings_plan_types.dart';
+
 class AppUser {
   const AppUser({
     required this.id,
@@ -272,6 +276,16 @@ abstract final class CategoryIcons {
 
 enum SavingsGoalStatus { active, completed, archived }
 
+/// A savings goal. Two kinds share one collection:
+///
+/// * [SavingsGoalKind.target] ("Target Akhir"): reach [targetAmount], with an
+///   optional [targetDate]. [targetAmount] is expressed in today's money; when
+///   [adjustForInflation] is on it is grown by [inflationRate] up to the date.
+/// * [SavingsGoalKind.periodic] ("Target Berkala"): save [periodicAmount]
+///   every [periodUnit] from [startDate], with no deadline. [targetAmount] is 0.
+///
+/// Documents written before the two kinds existed have none of the new
+/// fields and read back as plain `target` goals with no inflation handling.
 class SavingsGoal {
   const SavingsGoal({
     required this.id,
@@ -281,6 +295,14 @@ class SavingsGoal {
     required this.status,
     required this.createdAt,
     required this.createdBy,
+    this.kind = SavingsGoalKind.target,
+    this.periodicAmount,
+    this.periodUnit,
+    this.startDate,
+    this.adjustForInflation = false,
+    this.inflationRate,
+    this.expectedReturn = 0,
+    this.priceDate,
   });
 
   final String id;
@@ -291,6 +313,34 @@ class SavingsGoal {
   final DateTime createdAt;
   final String createdBy;
 
+  final SavingsGoalKind kind;
+
+  /// Periodic goals: rupiah saved per [periodUnit].
+  final int? periodicAmount;
+  final PeriodUnit? periodUnit;
+
+  /// Periodic goals: first day of the first period.
+  final DateTime? startDate;
+
+  /// Whether the amounts are inflated to future prices (and projections are
+  /// shown in today's purchasing power).
+  final bool adjustForInflation;
+
+  /// Yearly inflation in percent; `null` = automatic, depends on the horizon.
+  final double? inflationRate;
+
+  /// Optional yearly yield (percent) of wherever the money is kept.
+  final double expectedReturn;
+
+  /// The day [targetAmount] was quoted. Inflation is counted from here, so a
+  /// goal opened later still knows how much its price has already risen.
+  /// Falls back to [createdAt] for goals that never stored it.
+  final DateTime? priceDate;
+
+  bool get isPeriodic => kind == SavingsGoalKind.periodic;
+
+  DateTime get effectivePriceDate => priceDate ?? createdAt;
+
   SavingsGoal copyWith({
     String? id,
     String? name,
@@ -300,6 +350,15 @@ class SavingsGoal {
     SavingsGoalStatus? status,
     DateTime? createdAt,
     String? createdBy,
+    SavingsGoalKind? kind,
+    int? periodicAmount,
+    PeriodUnit? periodUnit,
+    DateTime? startDate,
+    bool? adjustForInflation,
+    double? inflationRate,
+    bool clearInflationRate = false,
+    double? expectedReturn,
+    DateTime? priceDate,
   }) {
     return SavingsGoal(
       id: id ?? this.id,
@@ -310,6 +369,15 @@ class SavingsGoal {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       createdBy: createdBy ?? this.createdBy,
+      kind: kind ?? this.kind,
+      periodicAmount: periodicAmount ?? this.periodicAmount,
+      periodUnit: periodUnit ?? this.periodUnit,
+      startDate: startDate ?? this.startDate,
+      adjustForInflation: adjustForInflation ?? this.adjustForInflation,
+      inflationRate:
+          clearInflationRate ? null : (inflationRate ?? this.inflationRate),
+      expectedReturn: expectedReturn ?? this.expectedReturn,
+      priceDate: priceDate ?? this.priceDate,
     );
   }
 
@@ -321,17 +389,33 @@ class SavingsGoal {
           targetDate != null ? Timestamp.fromDate(targetDate!) : null,
       'status': status.name,
       'createdBy': createdBy,
+      'kind': kind.name,
+      'periodicAmount': periodicAmount,
+      'periodUnit': periodUnit?.name,
+      'startDate': startDate != null ? Timestamp.fromDate(startDate!) : null,
+      'adjustForInflation': adjustForInflation,
+      'inflationRate': inflationRate,
+      'expectedReturn': expectedReturn,
+      'priceDate': priceDate != null ? Timestamp.fromDate(priceDate!) : null,
       if (includeCreatedAt) 'createdAt': FieldValue.serverTimestamp(),
     };
   }
 
   factory SavingsGoal.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data() ?? {};
+    return SavingsGoal.fromMap(doc.id, doc.data() ?? {});
+  }
+
+  /// Reads a stored goal. Fields added with the two goal kinds are optional so
+  /// documents written by older versions still load (as plain target goals).
+  factory SavingsGoal.fromMap(String id, Map<String, dynamic> data) {
     final statusRaw = data['status'] as String?;
+    final kindRaw = data['kind'] as String?;
     final createdAt = data['createdAt'];
     final targetDate = data['targetDate'];
+    final startDate = data['startDate'];
+    final priceDate = data['priceDate'];
     return SavingsGoal(
-      id: doc.id,
+      id: id,
       name: data['name'] as String? ?? '',
       targetAmount: (data['targetAmount'] as num?)?.toInt() ?? 0,
       targetDate: targetDate is Timestamp ? targetDate.toDate() : null,
@@ -341,6 +425,17 @@ class SavingsGoal {
       ),
       createdAt: createdAt is Timestamp ? createdAt.toDate() : DateTime.now(),
       createdBy: data['createdBy'] as String? ?? '',
+      kind: SavingsGoalKind.values.firstWhere(
+        (k) => k.name == kindRaw,
+        orElse: () => SavingsGoalKind.target,
+      ),
+      periodicAmount: (data['periodicAmount'] as num?)?.toInt(),
+      periodUnit: PeriodUnit.fromName(data['periodUnit'] as String?),
+      startDate: startDate is Timestamp ? startDate.toDate() : null,
+      adjustForInflation: data['adjustForInflation'] as bool? ?? false,
+      inflationRate: (data['inflationRate'] as num?)?.toDouble(),
+      expectedReturn: (data['expectedReturn'] as num?)?.toDouble() ?? 0,
+      priceDate: priceDate is Timestamp ? priceDate.toDate() : null,
     );
   }
 }

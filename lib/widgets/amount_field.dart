@@ -10,10 +10,12 @@ class AmountField extends StatelessWidget {
     super.key,
     required this.controller,
     this.isIncome = false,
+    this.label = 'Nominal',
   });
 
   final TextEditingController controller;
   final bool isIncome;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,7 @@ class AmountField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Nominal',
+          label,
           style: textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant),
         ),
         const SizedBox(height: AppSpacing.sm),

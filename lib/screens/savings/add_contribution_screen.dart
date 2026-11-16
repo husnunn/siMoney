@@ -9,10 +9,17 @@ import '../../widgets/amount_field.dart';
 import '../../widgets/primary_button.dart';
 
 class AddContributionArgs {
-  const AddContributionArgs({required this.goalId, required this.type});
+  const AddContributionArgs({
+    required this.goalId,
+    required this.type,
+    this.initialAmount,
+  });
 
   final String goalId;
   final ContributionType type;
+
+  /// Pre-fills the amount, e.g. the fixed amount of a periodic goal.
+  final int? initialAmount;
 }
 
 class AddContributionScreen extends StatefulWidget {
@@ -20,12 +27,14 @@ class AddContributionScreen extends StatefulWidget {
     super.key,
     required this.goalId,
     this.initialType = ContributionType.deposit,
+    this.initialAmount,
   });
 
   static const routeName = '/savings/contribution/add';
 
   final String goalId;
   final ContributionType initialType;
+  final int? initialAmount;
 
   @override
   State<AddContributionScreen> createState() => _AddContributionScreenState();
@@ -43,7 +52,12 @@ class _AddContributionScreenState extends State<AddContributionScreen> {
   void initState() {
     super.initState();
     _type = widget.initialType;
-    _amountController = TextEditingController();
+    final initialAmount = widget.initialAmount;
+    _amountController = TextEditingController(
+      text: initialAmount != null && initialAmount > 0
+          ? formatRupiah(initialAmount).replaceFirst('Rp', '')
+          : '',
+    );
     _noteController = TextEditingController();
     _date = DateTime.now();
   }

@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   SavingsGoal? _priorityGoal() {
     final active = appStore.savingsGoals
-        .where((g) => g.status == SavingsGoalStatus.active)
+        .where((g) => g.status == SavingsGoalStatus.active && !g.isPeriodic)
         .toList()
       ..sort((a, b) {
         final ad = a.targetDate;

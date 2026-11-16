@@ -4,12 +4,13 @@ import '../../models/models.dart';
 import '../../state/app_store.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../utils/formatters.dart';
+import '../../widgets/bordered_list_card.dart';
+import '../../widgets/responsive_body.dart';
 import '../../widgets/savings_contribution_tile.dart';
-import '../../widgets/savings_progress_bar.dart';
-import '../../widgets/status_pill.dart';
-import 'add_contribution_screen.dart';
+import '../../widgets/section_header.dart';
 import 'add_edit_savings_goal_screen.dart';
+import 'widgets/goal_detail_header.dart';
+import 'widgets/goal_detail_sections.dart';
 
 class SavingsGoalDetailScreen extends StatelessWidget {
   const SavingsGoalDetailScreen({super.key, required this.goalId});
@@ -63,102 +64,49 @@ class SavingsGoalDetailScreen extends StatelessWidget {
             ],
           ),
           body: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          if (goal.status == SavingsGoalStatus.completed)
-                            const StatusPill(
-                              label: 'Tercapai',
-                              color: AppColors.income,
-                            )
-                          else if (isArchived)
-                            const StatusPill(
-                              label: 'Diarsipkan',
-                              color: AppColors.outline,
-                            ),
-                        ],
+            child: ResponsiveBody(
+              child: ListView(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                children: [
+                  GoalDetailHeader(goal: goal, progress: progress),
+                  if (!isArchived) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    GoalDetailActions(goal: goal),
+                  ],
+                  const SizedBox(height: AppSpacing.lg),
+                  if (goal.isPeriodic)
+                    PeriodicGoalSections(goal: goal, contributions: contributions)
+                  else
+                    FinalGoalSections(
+                      goal: goal,
+                      progress: progress,
+                      contributions: contributions,
+                    ),
+                  const SizedBox(height: AppSpacing.lg),
+                  const SectionHeader(title: 'Riwayat'),
+                  const SizedBox(height: AppSpacing.sm),
+                  if (contributions.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.lg,
                       ),
-                      if (goal.targetDate != null) ...[
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          'Target tercapai sebelum ${formatDateShort(goal.targetDate!)}',
-                          style: textTheme.bodySmall,
+                      child: Center(
+                        child: Text(
+                          'Belum ada riwayat setor/tarik',
+                          style: textTheme.bodyMedium,
                         ),
+                      ),
+                    )
+                  else
+                    BorderedListCard(
+                      dividerIndent: 72,
+                      children: [
+                        for (final c in contributions)
+                          SavingsContributionTile(contribution: c),
                       ],
-                      const SizedBox(height: AppSpacing.md),
-                      SavingsProgressBar(
-                        progress: progress,
-                        target: goal.targetAmount,
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      if (!isArchived)
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => Navigator.of(context).pushNamed(
-                                  AddContributionScreen.routeName,
-                                  arguments: AddContributionArgs(
-                                    goalId: goalId,
-                                    type: ContributionType.deposit,
-                                  ),
-                                ),
-                                icon: const Icon(Icons.south_west),
-                                label: const Text('Setor'),
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.md),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => Navigator.of(context).pushNamed(
-                                  AddContributionScreen.routeName,
-                                  arguments: AddContributionArgs(
-                                    goalId: goalId,
-                                    type: ContributionType.withdraw,
-                                  ),
-                                ),
-                                icon: const Icon(Icons.north_east),
-                                label: const Text('Tarik'),
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                  child: Text('Riwayat', style: textTheme.titleMedium),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                const Divider(),
-                Expanded(
-                  child: contributions.isEmpty
-                      ? Center(
-                          child: Text(
-                            'Belum ada riwayat setor/tarik',
-                            style: textTheme.bodyMedium,
-                          ),
-                        )
-                      : ListView.separated(
-                          itemCount: contributions.length,
-                          separatorBuilder: (_, _) =>
-                              const Divider(indent: 72),
-                          itemBuilder: (context, index) {
-                            return SavingsContributionTile(
-                              contribution: contributions[index],
-                            );
-                          },
-                        ),
-                ),
-              ],
+                    ),
+                ],
+              ),
             ),
           ),
         );

@@ -41,7 +41,9 @@ Setiap transaksi yang dicatat oleh satu anggota langsung tersinkron ke seluruh a
 - **Riwayat Realtime** — daftar transaksi terurut waktu, menampilkan nama anggota yang menginput setiap transaksi.
 - **Kategori** — kategori bawaan (Makan, Transport, Gaji, Tagihan, dll) ditambah kategori custom buatan pengguna.
 - **Ringkasan & Analitik** — ringkasan saldo (pemasukan − pengeluaran) per periode (harian/mingguan/bulanan) serta breakdown kategori dalam bentuk donut chart dan ranking kategori.
-- **Target Tabungan** — buat target tabungan bersama, catat kontribusi setor/tarik, dan pantau progres menuju target.
+- **Target Tabungan** — dua jenis target bersama dalam dua tab, dengan catatan setor/tarik dan progres:
+  - **Target Akhir** — kumpulkan sejumlah uang sampai tenggat. Aplikasi menghitung berapa yang perlu ditabung per hari, minggu, bulan, dan tahun; bisa disesuaikan dengan inflasi Indonesia (data BPS/BI, otomatis menurut tenor atau skenario rendah/dasar/tinggi) dan imbal hasil opsional. Dilengkapi grafik proyeksi saldo vs harga, perbandingan tenor, dan kalkulator "kapan tercapai".
+  - **Target Berkala** — nabung dengan nominal tetap per hari/minggu/bulan tanpa tenggat (mis. Rp120.000 per minggu). Aplikasi menghitung setaranya per hari/minggu/bulan/tahun, proyeksi 1 bulan sampai 10 tahun (termasuk nilai daya beli), serta konsistensi (beruntun, terlewat, kekurangan dari jadwal).
 - **Ekspor Data** — ekspor riwayat transaksi ke CSV dan bagikan lewat fitur share bawaan perangkat.
 - **Privasi Saldo** — tombol untuk menyembunyikan/menampilkan nominal saldo di layar utama.
 
@@ -125,7 +127,9 @@ Every transaction logged by one member syncs instantly to the rest of the ledger
 - **Realtime History** — chronological transaction list showing which member logged each entry.
 - **Categories** — default categories (Food, Transport, Salary, Bills, etc.) plus user-created custom categories.
 - **Summary & Analytics** — balance summary (income − expense) filterable by day/week/month, with category breakdowns shown as a donut chart and ranked list.
-- **Savings Goals** — create shared savings goals, log deposit/withdrawal contributions, and track progress toward the target.
+- **Savings Goals** — two kinds of shared goals in two tabs, with deposit/withdrawal logging and progress:
+  - **Target Akhir (final target)** — reach a total amount by a deadline. The app works out what to save per day, week, month and year; it can adjust for Indonesian inflation (BPS/BI data, automatic by horizon or low/base/high scenarios) and an optional yield. Includes a balance-vs-price projection chart, a tenor comparison and a "when is it reached" calculator.
+  - **Target Berkala (periodic target)** — save a fixed amount per day/week/month with no deadline (e.g. Rp120,000 per week). The app derives the per-day/week/month/year equivalents, projections from 1 month to 10 years (including purchasing power) and consistency (streak, missed periods, gap to schedule).
 - **Data Export** — export transaction history to CSV and share it via the device's native share sheet.
 - **Balance Privacy** — a toggle to hide/show the balance amount on the home screen.
 

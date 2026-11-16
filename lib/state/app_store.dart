@@ -11,6 +11,7 @@ import '../services/transaction_repository.dart';
 import '../services/user_repository.dart';
 import '../utils/formatters.dart';
 import 'savings_calculator.dart';
+import 'savings_goal_planning.dart';
 
 enum FlowPeriod { day, week, month }
 
@@ -131,6 +132,23 @@ class AppStore extends ChangeNotifier {
 
   List<SavingsContribution> contributionsForGoal(String goalId) {
     return savingsContributions.where((c) => c.goalId == goalId).toList();
+  }
+
+  /// "Target Akhir" goals (reach a total amount).
+  List<SavingsGoal> get finalGoals =>
+      savingsGoals.where((g) => !g.isPeriodic).toList();
+
+  /// "Target Berkala" goals (a fixed amount every period).
+  List<SavingsGoal> get periodicGoals =>
+      savingsGoals.where((g) => g.isPeriodic).toList();
+
+  /// Net amount saved across [goals].
+  int savedAcross(Iterable<SavingsGoal> goals) {
+    var total = 0;
+    for (final g in goals) {
+      total += goalProgress(g.id);
+    }
+    return total;
   }
 
   SavingsGoal? goalById(String id) {
@@ -488,23 +506,62 @@ class AppStore extends ChangeNotifier {
 
   Future<void> addSavingsGoal({
     required String name,
-    required int targetAmount,
+    SavingsGoalKind kind = SavingsGoalKind.target,
+    int targetAmount = 0,
     DateTime? targetDate,
+    int? periodicAmount,
+    PeriodUnit? periodUnit,
+    DateTime? startDate,
+    bool adjustForInflation = false,
+    double? inflationRate,
+    double expectedReturn = 0,
   }) async {
     final user = currentUser;
     final ledger = currentLedger;
     if (user == null || ledger == null) {
       throw StateError('Ledger belum dipilih');
     }
-    if (targetAmount <= 0) {
+    final isPeriodic = kind == SavingsGoalKind.periodic;
+    if (isPeriodic) {
+      if ((periodicAmount ?? 0) <= 0) {
+        throw SavingsValidationException(
+          'Nominal per periode harus lebih dari 0',
+        );
+      }
+      if (periodUnit == null) {
+        throw SavingsValidationException('Pilih periode menabung');
+      }
+    } else if (targetAmount <= 0) {
       throw SavingsValidationException('Target harus lebih dari 0');
     }
+    if (expectedReturn < 0 || expectedReturn > 100) {
+      throw SavingsValidationException(
+        'Imbal hasil harus antara 0% dan 100% per tahun',
+      );
+    }
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final start = startDate ?? today;
     await _savings.addGoal(
       ledgerId: ledger.id,
-      name: name.trim(),
-      targetAmount: targetAmount,
-      targetDate: targetDate,
-      createdBy: user.id,
+      draft: SavingsGoal(
+        id: '',
+        name: name.trim(),
+        targetAmount: isPeriodic ? 0 : targetAmount,
+        targetDate: isPeriodic ? null : targetDate,
+        status: SavingsGoalStatus.active,
+        createdAt: now,
+        createdBy: user.id,
+        kind: kind,
+        periodicAmount: isPeriodic ? periodicAmount : null,
+        periodUnit: isPeriodic ? periodUnit : null,
+        startDate: isPeriodic ? DateTime(start.year, start.month, start.day) : null,
+        adjustForInflation: adjustForInflation,
+        inflationRate: inflationRate,
+        expectedReturn: expectedReturn,
+        priceDate: isPeriodic ? null : today,
+      ),
     );
   }
 
@@ -589,11 +646,15 @@ class AppStore extends ChangeNotifier {
       createdByName: user.name,
     );
 
+    // Periodic goals have no end amount, so they never complete.
+    if (goal.isPeriodic) return;
+
     final newProgress = progressBeforeWrite +
         (type == ContributionType.deposit ? amount : -amount);
-    final shouldComplete = newProgress >= goal.targetAmount &&
+    final completionTarget = goal.completionTarget();
+    final shouldComplete = newProgress >= completionTarget &&
         goal.status == SavingsGoalStatus.active;
-    final shouldRevert = newProgress < goal.targetAmount &&
+    final shouldRevert = newProgress < completionTarget &&
         goal.status == SavingsGoalStatus.completed;
     if (shouldComplete) {
       await updateSavingsGoal(goal.copyWith(status: SavingsGoalStatus.completed));

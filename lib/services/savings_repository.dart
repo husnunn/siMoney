@@ -16,23 +16,13 @@ class SavingsRepository {
         .map((snap) => snap.docs.map(SavingsContribution.fromDoc).toList());
   }
 
+  /// Writes [draft] as a new goal; its `id` is replaced by the generated one.
   Future<String> addGoal({
     required String ledgerId,
-    required String name,
-    required int targetAmount,
-    DateTime? targetDate,
-    required String createdBy,
+    required SavingsGoal draft,
   }) async {
     final ref = FsPaths.savingsGoals(ledgerId).doc();
-    final goal = SavingsGoal(
-      id: ref.id,
-      name: name,
-      targetAmount: targetAmount,
-      targetDate: targetDate,
-      status: SavingsGoalStatus.active,
-      createdAt: DateTime.now(),
-      createdBy: createdBy,
-    );
+    final goal = draft.copyWith(id: ref.id);
     await ref.set(goal.toMap(includeCreatedAt: true));
     return ref.id;
   }

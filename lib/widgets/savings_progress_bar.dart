@@ -43,9 +43,13 @@ class SavingsProgressBar extends StatelessWidget {
                 color: AppColors.onSurface,
               ),
             ),
-            Text(
-              'dari ${formatRupiah(target)}',
-              style: textTheme.bodySmall,
+            const SizedBox(width: AppSpacing.sm),
+            Flexible(
+              child: Text(
+                'dari ${formatRupiah(target)}',
+                style: textTheme.bodySmall,
+                textAlign: TextAlign.end,
+              ),
             ),
           ],
         ),

@@ -75,6 +75,8 @@ class SiMoneyApp extends StatelessWidget {
             final args = settings.arguments;
             page = AddEditSavingsGoalScreen(
               goalId: args is String ? args : null,
+              initialKind:
+                  args is SavingsGoalKind ? args : SavingsGoalKind.target,
             );
           case SavingsGoalDetailScreen.routeName:
             page = SavingsGoalDetailScreen(
@@ -86,6 +88,7 @@ class SiMoneyApp extends StatelessWidget {
               page = AddContributionScreen(
                 goalId: args.goalId,
                 initialType: args.type,
+                initialAmount: args.initialAmount,
               );
             } else {
               page = const LoginScreen();
